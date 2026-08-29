@@ -12,7 +12,6 @@ import setup.sys_path_manipulation
 
 from notebook.utils import setup_sam_3d_body
 
-from app.src.capture import capture
 from app.src.dummy_capture import dummy_capture
 from app.src.segmentation import stage_segmentation
 
