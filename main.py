@@ -38,6 +38,6 @@ if __name__ == "__main__":
         img=captured_frame_rgb, bboxes=boxes_xyxy.cpu(), masks=binary_s
     )
 
-    latency = time.time() - start_time * 1000
-    print(f"Inference Call Latency: {latency}ms")
+    latency = time.time() - start_time
+    print(f"Inference Call Latency: {latency * 1000:.2f}ms")
     print(outputs)
