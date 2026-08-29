@@ -32,7 +32,7 @@ if __name__ == "__main__":
     bbox_height_px, binary_s = stage_segmentation(captured_frame)
 
     start_time = time.time()
-    estimator = setup_sam_3d_body(hf_repo_id="facebook/sam-3d-body-dinov3", segmentor_name="sam3", device="cpu")
+    estimator = setup_sam_3d_body(hf_repo_id="facebook/sam-3d-body-dinov3", segmentor_name="sam3", device="cuda")
 
     outputs = estimator.process_one_image(
         img=captured_frame_rgb, bboxes=boxes_xyxy, masks=binary_s
