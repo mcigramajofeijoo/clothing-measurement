@@ -124,3 +124,36 @@ Alternatively, if we eventually want pyrender to render 3D images on macOS, we m
 # Entry point
 os.environ["PYOPENGL_PLATFORM"] = "pyglet" # or osmesa (we may need to install osmesa, pyglet seems to be already installed)
 ```
+
+# Convert SAM Cloned Repositories to Submodules
+Since we're cloning the folders from META `(sam3 and sam-3d-body)`, we need to convert them to submodules before pushing to our repository.
+
+For this, follow these steps:
+```bash
+git 3m --cached [NAME OF CLONED FOLDER] -f
+```
+
+```bash
+git submodule add [LINK TO THEIR REPO] [NAME OF CLONED FOLDER]
+```
+
+
+# Rate Limit Error
+As we know, SAM 3D Body works with an encoder-decoder architecture based on Transformers. The encoder uses a backbone, so when we make our inference call, SAM tries to initialize it's backone via **torch.hub.load**. Under the hood, PyTorch is attempting to download the DINOv2 vision model directly from Meta's GitHub repository. To do this safely, PyTorch hits the GitHub API to verify the repository details—but GitHub strictly limits unauthenticated API requests to 60 per hour.
+
+To extend this rate limit, **we need to create a GitHub Personal Access Token.** By doing this, PyTorch will have token so GitHub knows who is making the request (this bumps your limit from 60 to 5,000 requests per hour).
+
+Once we generate the token (classic token), which by the way we do not need to check any of the scope boxes (the default empty scopes are enough for public repos), we need to add it to our 
+
+# Problems with PyTorch and DinoV3 & Roma, torch.UInt32Storage, CUDA enabled, etc.
+Due to SAM 3D Body uses >2.x PyTorch and we cannot install it since we have MacOS Intel, we're having some incompatibility issues, so we need to apply some monkey patches.
+
+
+# ModuleNotFoundError: No module named 'pkg_resources'
+The pkg_resources error happens because modern versions of setuptools (v82.0.0+) have completely removed pkg_resources, and Python 3.12 no longer includes it by default. Even if setuptools is installed, it's likely too new for Detectron2's model zoo. 
+NOTE: Maybe has something to do with us reinstalling Detectron with the flags we're applying.
+
+The solution is to downgrade setuptools to 80.10.2:
+```bash
+uv pip install "setuptools<=80.10.2"
+```
