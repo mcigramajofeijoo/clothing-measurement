@@ -35,7 +35,7 @@ if __name__ == "__main__":
     estimator = setup_sam_3d_body(hf_repo_id="facebook/sam-3d-body-dinov3", segmentor_name="sam3", device="cuda")
 
     outputs = estimator.process_one_image(
-        img=captured_frame_rgb, bboxes=boxes_xyxy, masks=binary_s
+        img=captured_frame_rgb, bboxes=boxes_xyxy.cpu(), masks=binary_s
     )
 
     latency = time.time() - start_time * 1000
