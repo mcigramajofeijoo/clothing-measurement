@@ -1,7 +1,5 @@
-import os
-import sys
+
 import warnings
-from unittest.mock import MagicMock
 import time
 from dotenv import load_dotenv
 
@@ -10,11 +8,7 @@ load_dotenv()
 # INFO: `UserWarning: Momentum is not enabled:` This warning only matters during model training and has no effect on mesh accuracy, speed, or output quality.
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# Mock decord globally
-sys.modules["decord"] = MagicMock()
-
 import setup.sys_path_manipulation
-import setup.torch_monkey_patch
 
 from notebook.utils import setup_sam_3d_body
 
@@ -23,7 +17,6 @@ from app.src.dummy_capture import dummy_capture
 from app.src.segmentation import stage_segmentation
 
 if __name__ == "__main__":
-    # print("Testing")
 
     while True:
         try:
