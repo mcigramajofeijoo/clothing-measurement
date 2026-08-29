@@ -11,6 +11,10 @@ from .constants import (GUIDE_FRONT_KEYPOINTS_RELATIVE,
                         RIGHT_HIP, RIGHT_KNEE, RIGHT_SHOULDER, RIGHT_WRIST,
                         SKELETON_CONNECTIONS)
 
+# WARNING: We're transferring every tensor back to CPU whenever we're converting them to Numpy array.
+# - More info:
+#   In our local environment, the code was running entirely on the CPU, so PyTorch tensors were already in host CPU memory (cpu). When np.asarray() or .numpy() was called, it executed without issue.
+#   If we're using GPU, so our YOLO or segmentation model places its output tensors directly on cuda:0 (GPU memory). NumPy cannot interact directly with GPU memory; the tensor must first be transferred back to host CPU memory.
 
 def compute_scale_factor(
     tilt_deg: float, user_height_cm: float, bbox_height_px: float
@@ -123,12 +127,12 @@ def draw_guide_skeleton(
     return frame
 
 
-def calculate_euclidean_distance(point_a, point_b):
+def calculate_euclidean_distance(point_a: torch.Tensor, point_b: torch.Tensor):
     """
     Euclidean distance between 2 points [x, y].
     """
-    point_a = np.asarray(point_a, dtype=np.float32)
-    point_b = np.asarray(point_b, dtype=np.float32)
+    point_a = np.asarray(point_a.cpu(), dtype=np.float32)
+    point_b = np.asarray(point_b.cpu(), dtype=np.float32)
 
     subtraction = np.subtract(point_a, point_b)
 
@@ -167,11 +171,11 @@ def calculate_angle(
     vertex: torch.Tensor, point_a: torch.Tensor, point_b: torch.Tensor
 ) -> float:
     # What is the dtype of these Tensors, is np.float32 as regular?
-    vertex = np.asarray(vertex, dtype=np.float32)
+    vertex = np.asarray(vertex.cpu(), dtype=np.float32)
     point_a = np.asarray(
-        point_a, dtype=np.float32
+        point_a.cpu(), dtype=np.float32
     )  # This should be the vertical reference, for convention
-    point_b = np.asarray(point_b, dtype=np.float32)
+    point_b = np.asarray(point_b.cpu(), dtype=np.float32)
 
     vector_a = np.subtract(point_a, vertex)
     vector_b = np.subtract(point_b, vertex)
@@ -304,12 +308,12 @@ def check_keypoints_in_frame(
             return True, "Profile view correct."
 
 
-def midpoint(point_a, point_b):
+def midpoint(point_a: torch.Tensor, point_b: torch.Tensor):
     """
     Calculate the midpoint between 2 keypoints.
     """
-    point_a = np.asarray(point_a, dtype=np.float32)
-    point_b = np.asarray(point_b, dtype=np.float32)
+    point_a = np.asarray(point_a.cpu(), dtype=np.float32)
+    point_b = np.asarray(point_b.cpu(), dtype=np.float32)
 
     return (point_a + point_b) / 2
 
@@ -372,7 +376,7 @@ def resize_mask_to_original_image_size(
 ):
     # OpenCV works with Numpy arrays, not tensors
     # uint8 is the standard type for images (integer numbers from 0 to 255, even though here we're only using 0 and 1).
-    mask_numpy = np.asarray(mask_tensor, dtype=np.uint8)
+    mask_numpy = np.asarray(mask_tensor.cpu(), dtype=np.uint8)
 
     img_height, img_width, _ = img_shape
 
